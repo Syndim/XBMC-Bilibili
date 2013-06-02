@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.bilibili"
-	name="Bilibili"
-	version="0.0.1"
-	provider-name="Syndim">
-	<requires>
-		<import addon="xbmc.python"                 version="2.1.0"/>
-		<import addon="xbmc.json"                   version="6.0.0"/>
-		<import addon="xbmc.addon"                  version="12.0.0"/>
-		<import addon="script.module.elementtree"   version="1.2.7"/>
-		<import addon="script.module.simplejson"    version="2.0.10" optional="true"/>
-		<import addon="script.common.plugin.cache"  version="1.3.0"/>
-	</requires>
-	<extension point="xbmc.python.pluginsource" library="addon.py">
-		<provides>video</provides>
-	</extension>
-	<extension point="xbmc.addon.metadata">
-		<platform>all</platform>
-		<summary>Bilibili</summary>
-		<description>BiliBili</description>
-		<disclaimer>BiliBili</disclaimer>
-	</extension>
+<addon id="plugin.video.bilibili" name="bilibili" version="0.1" provider-name="Syndim">
+  <requires>
+    <import addon="xbmc.python" version="2.1.0"/>
+    <import addon="script.module.xbmcswift2" version="2.4.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <platform>all</platform>
+    <language></language>
+    <summary>Summary for "bilibili"</summary>
+    <description>Description for "bilibili"</description>
+  </extension>
 </addon>

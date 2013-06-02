@@ -1,64 +1,64 @@
-#coding:utf8
-
-import xbmcplugin
-import xbmcgui
-import xbmc
-import sys
+#coding: utf8
 import tempfile
-from bilibili import Bili
-from urllib import unquote
+from xbmcswift2 import Plugin, xbmc, xbmcgui
+from resources.lib.bilibili import Bili
 
-def get_dirs():
-    dir_str = sys.argv[2]
-    dir_str = dir_str.replace('?dir=', '')
-    str_list =  dir_str.split('%2f%2f')
-    str_list = filter(bool, str_list)
-    return str_list
+plugin = Plugin()
+bili = Bili()
 
-def gen_dir_url(dirs):
-    result = 'plugin://plugin.video.bilibili/?dir=' + '//'.join(dirs)
-    if result.endswith('/'):
-        result = result[:-1]
-    return result
-
-def play_video(urls_info):
+def _play_video(urls_info):
     playlist = xbmc.PlayList(1)
     playlist.clear()
     i = 1
     for url in urls_info[0]:
         list_item = xbmcgui.ListItem(u'播放')
-        list_item.setInfo(type='Video', infoLabels={"Title": "第"+str(i)+"/"+str(len(urls_info[0]))+" 节"})
+        list_item.setInfo(type='video', infoLabels={"Title": "第"+str(i)+"/"+str(len(urls_info[0]))+" 节"})
         i += 1
         playlist.add(url, listitem=list_item)
     xbmc.Player().play(playlist)
-    print tempfile.gettempprefix()
     xbmc.Player().setSubtitles(tempfile.gettempdir() + '/tmp.ass')
 
-def main():
-    handle = int(sys.argv[1])
-    bili = Bili()
-    dir_list = get_dirs()
-    if len(dir_list) == 0:
-        dir_list = [ (gen_dir_url([x]), xbmcgui.ListItem(x), True) for x in bili.ROOT_DIRS ]
-        xbmcplugin.addDirectoryItems(handle, dir_list)
-        xbmcplugin.endOfDirectory(handle)
-    elif len(dir_list) == 1:
-        dir_list = [ (gen_dir_url([dir_list[0], x['link']]), xbmcgui.ListItem(x['title']), True) for x in bili.get_items(unquote(dir_list[0])) ]
-        xbmcplugin.addDirectoryItems(handle, dir_list)
-        xbmcplugin.endOfDirectory(handle)
-    elif len(dir_list) == 2:
-        video_list = []
-        for url in bili.get_video_list(dir_list[-1]):
-            new_dir_list = []
-            new_dir_list.extend(dir_list)
-            new_dir_list.append(url[1])
-            video_list.append((gen_dir_url(new_dir_list), xbmcgui.ListItem(url[0]), True))
-        if video_list:
-            xbmcplugin.addDirectoryItems(handle, video_list)
-            xbmcplugin.endOfDirectory(handle)
-    elif len(dir_list) == 3:
-        video_list = bili.get_video_urls(unquote(dir_list[-1]))
-        play_video(video_list)
+@plugin.route('/')
+def index():
+    dir_list = [
+        {
+            'label': name,
+            'path': plugin.url_for('show_target_items', target=name)
+        } for name in bili.ROOT_PATH ]
+    return dir_list
+
+@plugin.route('/items/<target>/')
+def show_target_items(target):
+    dir_list = [
+        {
+            'label': item['name'],
+            'path': plugin.url_for('show_category_items', target=target, category=item['eng_name'])
+        } for item in bili.get_items(target) ]
+    return dir_list
+
+@plugin.route('/items/<target>/<category>/')
+def show_category_items(target, category):
+    dir_list = [
+        {
+            'label': item['title'],
+            'path': plugin.url_for('show_video_list', url=item['link'])
+        } for item in bili.get_items(target, category) ]
+    return dir_list
+
+@plugin.route('/videos/<url>/')
+def show_video_list(url):
+    dir_list = [
+        {
+            'label': item[0],
+            'path': plugin.url_for('play_video', url=item[1]),
+        } for item in bili.get_video_list(url) ]
+    return dir_list
+
+@plugin.route('/video/<url>/')
+def play_video(url):
+    playlist = bili.get_video_urls(url)
+    print playlist
+    _play_video(playlist)
 
 if __name__ == '__main__':
-    main()
+    plugin.run()
