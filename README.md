@@ -27,10 +27,15 @@
 ## 截图
 
 ![菜单列表](http://i.imgur.com/sYDZugn.png)
+
 菜单列表
+
 ![选择界面](http://i.imgur.com/e9mNYNi.png)
+
 选择界面
+
 ![播放画面](http://i.imgur.com/AVWGxli.png)
+
 播放画面
 
 ## 已知问题
