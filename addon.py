@@ -6,7 +6,7 @@ from resources.lib.bilibili import Bili
 plugin = Plugin()
 bili = Bili()
 
-def _play_video(urls_info):
+def _play_video(urls_info, show_comments='1'):
     playlist = xbmc.PlayList(1)
     playlist.clear()
     i = 1
@@ -16,7 +16,8 @@ def _play_video(urls_info):
         i += 1
         playlist.add(url, listitem=list_item)
     xbmc.Player().play(playlist)
-    xbmc.Player().setSubtitles(tempfile.gettempdir() + '/tmp.ass')
+    if show_comments == '1':
+        xbmc.Player().setSubtitles(tempfile.gettempdir() + '/tmp.ass')
 
 @plugin.route('/')
 def index():
@@ -38,27 +39,46 @@ def show_target_items(target):
 
 @plugin.route('/items/<target>/<category>/')
 def show_category_items(target, category):
-    dir_list = [
-        {
+    if target == 'RSS':
+        dir_list = [ {
             'label': item['title'],
             'path': plugin.url_for('show_video_list', url=item['link'])
         } for item in bili.get_items(target, category) ]
+    elif target == 'Index':
+        dir_list = [ {
+            'label': item['title'],
+            'path': plugin.url_for('show_monthly_items', target=target, category=category, month=item['link'])
+        } for item in bili.get_items(target, category) ]
+    else:
+        dir_list = []
+    return dir_list
+
+@plugin.route('/items/<target>/<category>/<month>/')
+def show_monthly_items(target, category, month):
+    dir_list = [ {
+        'label': item['title'],
+        'path': plugin.url_for('show_video_list', url=item['link'])
+    } for item in bili.get_video_by_month(category, month)]
     return dir_list
 
 @plugin.route('/videos/<url>/')
 def show_video_list(url):
-    dir_list = [
-        {
+    dir_list = []
+    for item in bili.get_video_list(url):
+        dir_list.append({
             'label': item[0],
-            'path': plugin.url_for('play_video', url=item[1]),
-        } for item in bili.get_video_list(url) ]
+            'path': plugin.url_for('play_video', url=item[1], show_comments=1),
+        })
+        dir_list.append({
+            'label': item[0] + u'(无弹幕)',
+            'path': plugin.url_for('play_video', url=item[1], show_comments=0),
+        })
     return dir_list
 
-@plugin.route('/video/<url>/')
-def play_video(url):
+@plugin.route('/video/<url>/<show_comments>/')
+def play_video(url, show_comments):
     playlist = bili.get_video_urls(url)
-    print playlist
-    _play_video(playlist)
+    _play_video(playlist, show_comments)
 
 if __name__ == '__main__':
     plugin.run()

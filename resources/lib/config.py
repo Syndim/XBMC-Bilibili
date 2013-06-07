@@ -40,3 +40,26 @@ RSS_URLS = [
         'url': 'rss-13.xml'
     }
 ]
+
+INDEX_URLS = [
+    {
+        'name': u'新番二次元',
+        'eng_name': 'anime2',
+        'url': 'sitemap/sitemap-33.html'
+    },
+    {
+        'name': u'新番三次元',
+        'eng_name': 'anime3',
+        'url': 'sitemap/sitemap-34.html'
+    },
+    {
+        'name': u'专辑二次元',
+        'eng_name': 'album2',
+        'url':  'sitemap/sitemap-32.html'
+    },
+    {
+        'name': u'专辑三次元',
+        'eng_name': 'album3',
+        'url': 'sitemap/sitemap-15.html'
+    }
+]

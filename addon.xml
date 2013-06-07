@@ -10,7 +10,7 @@
   <extension point="xbmc.addon.metadata">
     <platform>all</platform>
     <language></language>
-    <summary>Summary for "bilibili"</summary>
-    <description>Description for "bilibili"</description>
+    <summary>XBMC Bilibili Plugin</summary>
+    <description>XBMC BiliBili Plugin</description>
   </extension>
 </addon>

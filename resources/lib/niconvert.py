@@ -258,7 +258,7 @@ class AssSubtitle:
             style_markup = '\\move(%d, %d, %d, %d)' % (self.x1, self.y1, self.x2, self.y2)
         else:
             style_markup = '\\a6\\pos(%d, %d)' % (self.x1, self.y1)
-        markup = ''.join([style_markup, color_markup, border_markup, font_size_markup])
+        markup = ''.join([style_markup, color_markup, border_markup, font_size_markup]) + '\\alpha&H7F&'
         return '{%s}%s' % (markup, self.nico_subtitle.text)
 
     @property
