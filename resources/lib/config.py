@@ -1,13 +1,21 @@
 #coding: utf8
 
+# B站根地址
 BASE_URL = r'http://www.bilibili.tv/'
 
+# B站接口地址（用于获取视频地址）
 INTERFACE_URL = r'http://interface.bilibili.tv/playurl?cid={0}'
 
+# B站评论页面地址
 COMMENT_URL = r'http://comment.bilibili.tv/{0}.xml'
 
+# 根菜单
 ROOT_PATH = [ 'RSS', 'Index' ]
 
+# 列表类型
+LIST_TYPE = [ 'Month', 'Alpha' ]
+
+# RSS地址列表
 RSS_URLS = [
     {
         'name': u'动画',
@@ -41,6 +49,7 @@ RSS_URLS = [
     }
 ]
 
+# 索引地址列表
 INDEX_URLS = [
     {
         'name': u'新番二次元',
