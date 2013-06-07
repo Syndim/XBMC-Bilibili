@@ -91,15 +91,17 @@ def show_video_list(url):
                 'label': item[0],
                 'path': plugin.url_for('play_video', url=item[1], show_comments=1),
             })
-            dir_list.append({
-                'label': item[0] + u'(无弹幕)',
-                'path': plugin.url_for('play_video', url=item[1], show_comments=0),
-            })
         except:
             dir_list.append({
                 'label': item[0].decode('utf8'),
                 'path': plugin.url_for('play_video', url=item[1], show_comments=1),
             })
+        try:
+            dir_list.append({
+                'label': item[0] + u'(无弹幕)',
+                'path': plugin.url_for('play_video', url=item[1], show_comments=0),
+            })
+        except:
             dir_list.append({
                 'label': item[0].decode('utf8') + u'(无弹幕)',
                 'path': plugin.url_for('play_video', url=item[1], show_comments=0),
