@@ -13,11 +13,14 @@ def _get_zlib_content(content):
     return page_content
 
 def get_page_content(page_full_url):
-    response = urllib2.urlopen(page_full_url)
-    print response.headers.get('content-encoding', '')
-    if response.headers.get('content-encoding', '') == 'gzip':
-        return _get_gzip_content(response.read())
-    elif response.headers.get('content-encoding', '') == 'deflate':
-        return _get_zlib_content(response.read())
-    else:
-        return response.read()
+    try:
+        response = urllib2.urlopen(page_full_url)
+        print response.headers.get('content-encoding', '')
+        if response.headers.get('content-encoding', '') == 'gzip':
+            return _get_gzip_content(response.read())
+        elif response.headers.get('content-encoding', '') == 'deflate':
+            return _get_zlib_content(response.read())
+        else:
+            return response.read()
+    except:
+        return ''

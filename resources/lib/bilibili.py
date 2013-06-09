@@ -4,6 +4,8 @@ from config import *
 import feedparser
 import xml.dom.minidom as minidom
 import re
+import time
+import datetime
 import os
 import tempfile
 import utils
@@ -95,11 +97,14 @@ class Bili():
             f.write(text.encode('utf8'))
             return 'tmp.ass'
 
+    def _need_rebuild(self, file_path):
+        return time.localtime(os.stat(file_path).st_ctime).tm_mday != time.localtime().tm_mday
+
     # 获取索引项目，并缓存
     def _get_index_items(self, url):
         pickle_file_by_word = tempfile.gettempdir() + '/' + url.split('/')[-1].strip() + '_word_tmp.pickle'
         pickle_file_by_month = tempfile.gettempdir() + '/' + url.split('/')[-1].strip() + '_month_tmp.pickle'
-        if os.path.exists(pickle_file_by_word) and os.path.exists(pickle_file_by_month):
+        if os.path.exists(pickle_file_by_word) and os.path.exists(pickle_file_by_month) and not self._need_rebuild(pickle_file_by_word) and not self._need_rebuild(pickle_file_by_month):
             return pickle.load(open(pickle_file_by_word, 'rb')), pickle.load(open(pickle_file_by_month, 'rb'))
         else:
             page_content = utils.get_page_content(url)
