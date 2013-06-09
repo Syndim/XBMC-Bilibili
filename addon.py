@@ -1,24 +1,54 @@
 #coding: utf8
 import tempfile
-from xbmcswift2 import Plugin, xbmc, xbmcgui
+from xbmcswift2 import Plugin, xbmcgui, xbmc
 from resources.lib.bilibili import Bili
+from resources.lib.subtitle import subtitle_offset
 
 plugin = Plugin()
 bili = Bili()
+
+class BiliPlayer(xbmc.Player):
+    def __init__(self):
+        self.subtitle = ""
+
+    def setSubtitle(self, subtitle):
+        self.subtitle = subtitle
+
+    def onPlayBackStarted(self):
+        time = float(self.getTime())
+        print time
+        if self.subtitle:
+            if time > 1:
+                print 'offset!'
+                self.disableSubtitles()
+                self.setSubtitles(subtitle_offset(self.subtitle, -time))
+            else:
+                print 'no offset!'
+                self.setSubtitles(self.subtitle)
 
 # 播放视频
 def _play_video(urls_info, show_comments='1'):
     playlist = xbmc.PlayList(1)
     playlist.clear()
-    i = 1
-    for url in urls_info[0]:
-        list_item = xbmcgui.ListItem(u'播放')
-        list_item.setInfo(type='video', infoLabels={"Title": "第"+str(i)+"/"+str(len(urls_info[0]))+" 节"})
-        i += 1
-        playlist.add(url, listitem=list_item)
-    xbmc.Player().play(playlist)
+    list_item = xbmcgui.ListItem(u'播放')
+    list_item.setInfo(type='video', infoLabels={"Title": u"播放"})
+    stack_url = 'stack://' + ' , '.join(urls_info[0])
+    playlist.add(stack_url, list_item)
+    #i = 1
+    #for url in urls_info[0]:
+        #list_item = xbmcgui.ListItem(u'播放')
+        #list_item.setInfo(type='video', infoLabels={"Title": "第"+str(i)+"/"+str(len(urls_info[0]))+" 节"})
+        #i += 1
+        #playlist.add(url, listitem=list_item)
+    player = BiliPlayer()
     if show_comments == '1':
-        xbmc.Player().setSubtitles(tempfile.gettempdir() + '/tmp.ass')
+        player.setSubtitle(tempfile.gettempdir() + '/' + urls_info[1])
+    player.play(playlist)
+    #if show_comments == '1':
+        #xbmc.Player().setSubtitles(tempfile.gettempdir() + '/' + urls_info[1])
+    while(not xbmc.abortRequested):
+        xbmc.sleep(100)
+
 
 # 首页
 @plugin.route('/')
