@@ -15,7 +15,6 @@ def _get_zlib_content(content):
 def get_page_content(page_full_url):
     try:
         response = urllib2.urlopen(page_full_url)
-        print response.headers.get('content-encoding', '')
         if response.headers.get('content-encoding', '') == 'gzip':
             return _get_gzip_content(response.read())
         elif response.headers.get('content-encoding', '') == 'deflate':
