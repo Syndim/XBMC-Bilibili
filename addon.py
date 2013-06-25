@@ -49,8 +49,8 @@ def _play_video_by_list(urls_info, show_comments='0'):
         list_item.setInfo(type='video', infoLabels={"Title": "第"+str(i)+"/"+str(len(urls_info[0]))+" 节"})
         i += 1
         playlist.add(url, listitem=list_item)
-    player.show_subtitle = False
     player.showSubtitles(False)
+    player.show_subtitle = False
     player.play(playlist)
     #if show_comments == '1':
         #xbmc.Player().setSubtitles(tempfile.gettempdir() + '/' + urls_info[1])
@@ -70,9 +70,8 @@ def _play_video(urls_info, show_comments='1'):
         player.setSubtitle(tempfile.gettempdir() + '/' + urls_info[1])
     else:
         _print_info('Play without subtitle')
-        player.show_subtitle = False
-        #player.setSubtitle('')
         player.showSubtitles(False)
+        player.show_subtitle = False
     player.play(playlist)
     while(not xbmc.abortRequested):
         xbmc.sleep(100)
@@ -180,7 +179,13 @@ def show_video_list(url):
 # 播放视频
 @plugin.route('/video/<url>/<by_list>/<show_comments>/')
 def play_video(url, by_list, show_comments):
-    playlist = bili.get_video_urls(url)
+    if show_comments == '1':
+        _print_info('Fetch subtitle')
+        playlist = bili.get_video_urls(url, True)
+    else:
+        _print_info('Don\'t fetch subtitle')
+        playlist = bili.get_video_urls(url, False)
+    _print_info('%d videos found' % len(playlist))
     if by_list == '1':
         _play_video_by_list(playlist, show_comments)
     else:

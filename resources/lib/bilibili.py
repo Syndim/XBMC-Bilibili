@@ -34,6 +34,10 @@ class Bili():
             item['url'] = self.BASE_URL + item['url']
         for item in self.INDEX_URLS:
             item['url'] = self.BASE_URL + item['url']
+        try:
+            os.remove(tempfile.gettempdir() + '/tmp.ass')
+        except:
+            pass
 
     def _print_info(self, info):
         print '[Bilibili]: ' + info
@@ -53,7 +57,7 @@ class Bili():
         return self._get_url(self.INDEX_URLS, name)
 
     # 根据页面内容解析视频请求页面URL
-    def _parse_urls(self, page_content):
+    def _parse_urls(self, page_content, need_subtitle = True):
         self._print_info('Parsing page')
         url_params = self.URL_PARAMS.findall(page_content)
         interface_full_url = ''
@@ -81,7 +85,10 @@ class Bili():
                 urls = part.getElementsByTagName('url')
                 if len(urls) > 0:
                     result.append(urls[0].firstChild.nodeValue)
-            return (result, self._parse_subtitle(url_params[0]))
+            if need_subtitle:
+                return (result, self._parse_subtitle(url_params[0]))
+            else:
+                return (result, '')
         else:
             _print_info('Interface url not found!')
         return ([], '')
@@ -90,22 +97,38 @@ class Bili():
     def _parse_subtitle(self, cid):
         page_full_url = self.COMMENT_URL.format(cid)
         self._print_info('Page full url: ' + page_full_url)
-        website = create_website(page_full_url)
+        website = None
+        try:
+            website = create_website(page_full_url)
+        except:
+            self._print_info('Subtitle generation failed: Can\'t create website object!')
+            return ''
         if website is None:
             self._print_info(page_full_url + " not supported")
             return ''
         else:
-            text = website.ass_subtitles_text(
-                font_name=u'黑体',
-                font_size=36,
-                resolution='%d:%d' % (self.WIDTH, self.HEIGHT),
-                line_count=12,
-                bottom_margin=0,
-                tune_seconds=0
-            )
-            f = open(tempfile.gettempdir() + '/tmp.ass', 'w')
-            f.write(text.encode('utf8'))
-            return 'tmp.ass'
+            self._print_info('Generating subtitle')
+            try:
+                text = website.ass_subtitles_text(
+                    font_name=u'黑体',
+                    font_size=36,
+                    resolution='%d:%d' % (self.WIDTH, self.HEIGHT),
+                    line_count=12,
+                    bottom_margin=0,
+                    tune_seconds=0
+                )
+            except:
+                self._print_info('Subtitle generation failed: Can\'t generate subtitle file!')
+                return ''
+            try:
+                f = open(tempfile.gettempdir() + '/tmp.ass', 'w')
+                f.write(text.encode('utf8'))
+                f.close()
+                self._print_info('Subtitle generation succeeded!')
+                return 'tmp.ass'
+            except:
+                self._print_info('Subtitle generation failed: Can\'t write subtitle file!')
+                return ''
 
     def _need_rebuild(self, file_path):
         return time.localtime(os.stat(file_path).st_ctime).tm_mday != time.localtime().tm_mday
@@ -206,10 +229,10 @@ class Bili():
             return [(part[1], part[0][1:]) for part in parts]
 
     # 获取视频地址
-    def get_video_urls(self, url):
+    def get_video_urls(self, url, need_subtitle=True):
         self._print_info('Getting video address')
         page_full_url = self.BASE_URL + url
         self._print_info('Page url: ' + page_full_url)
         page_content = utils.get_page_content(page_full_url)
         self._print_info('Origin page length: ' + str(len(page_content)))
-        return self._parse_urls(page_content)
+        return self._parse_urls(page_content, need_subtitle)
