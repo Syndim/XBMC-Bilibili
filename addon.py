@@ -7,6 +7,12 @@ from resources.lib.subtitle import subtitle_offset
 plugin = Plugin()
 bili = Bili()
 
+def get_tmp_dir():
+    try:
+        return tempfile.gettempdir()
+    except:
+        return "."
+
 def _print_info(info):
     print '[BiliAddon]: ' + info
 
@@ -53,7 +59,7 @@ def _play_video_by_list(urls_info, show_comments='0'):
     player.show_subtitle = False
     player.play(playlist)
     #if show_comments == '1':
-        #xbmc.Player().setSubtitles(tempfile.gettempdir() + '/' + urls_info[1])
+        #xbmc.Player().setSubtitles(get_tmp_dir() + '/' + urls_info[1])
 
 # 播放视频
 def _play_video(urls_info, show_comments='1'):
@@ -67,7 +73,7 @@ def _play_video(urls_info, show_comments='1'):
     player = BiliPlayer()
     if show_comments == '1':
         _print_info('Play with subtitle')
-        player.setSubtitle(tempfile.gettempdir() + '/' + urls_info[1])
+        player.setSubtitle(get_tmp_dir() + '/' + urls_info[1])
     else:
         _print_info('Play without subtitle')
         player.showSubtitles(False)

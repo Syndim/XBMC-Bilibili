@@ -35,9 +35,15 @@ class Bili():
         for item in self.INDEX_URLS:
             item['url'] = self.BASE_URL + item['url']
         try:
-            os.remove(tempfile.gettempdir() + '/tmp.ass')
+            os.remove(self._get_tmp_dir() + '/tmp.ass')
         except:
             pass
+
+    def _get_tmp_dir(self):
+        try:
+            return tempfile.gettempdir()
+        except:
+            return "."
 
     def _print_info(self, info):
         print '[Bilibili]: ' + info
@@ -113,7 +119,7 @@ class Bili():
                     bottom_margin=0,
                     tune_seconds=0
                 )
-                f = open(tempfile.gettempdir() + '/tmp.ass', 'w')
+                f = open(self._get_tmp_dir() + '/tmp.ass', 'w')
                 f.write(text.encode('utf8'))
                 f.close()
                 self._print_info('Subtitle generation succeeded!')
@@ -127,8 +133,8 @@ class Bili():
 
     # 获取索引项目，并缓存
     def _get_index_items(self, url):
-        pickle_file_by_word = tempfile.gettempdir() + '/' + url.split('/')[-1].strip() + '_word_tmp.pickle'
-        pickle_file_by_month = tempfile.gettempdir() + '/' + url.split('/')[-1].strip() + '_month_tmp.pickle'
+        pickle_file_by_word = self._get_tmp_dir() + '/' + url.split('/')[-1].strip() + '_word_tmp.pickle'
+        pickle_file_by_month = self._get_tmp_dir() + '/' + url.split('/')[-1].strip() + '_month_tmp.pickle'
         if os.path.exists(pickle_file_by_word) and os.path.exists(pickle_file_by_month) and not self._need_rebuild(pickle_file_by_word) and not self._need_rebuild(pickle_file_by_month):
             self._print_info('Index files already exists!')
             return pickle.load(open(pickle_file_by_word, 'rb')), pickle.load(open(pickle_file_by_month, 'rb'))
