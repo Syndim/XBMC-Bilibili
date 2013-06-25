@@ -185,7 +185,7 @@ def play_video(url, by_list, show_comments):
     else:
         _print_info('Don\'t fetch subtitle')
         playlist = bili.get_video_urls(url, False)
-    _print_info('%d videos found' % len(playlist))
+    _print_info('%d videos found' % len(playlist[0]))
     if by_list == '1':
         _play_video_by_list(playlist, show_comments)
     else:
