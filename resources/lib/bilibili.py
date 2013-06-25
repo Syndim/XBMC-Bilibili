@@ -100,15 +100,11 @@ class Bili():
         website = None
         try:
             website = create_website(page_full_url)
-        except:
-            self._print_info('Subtitle generation failed: Can\'t create website object!')
-            return ''
-        if website is None:
-            self._print_info(page_full_url + " not supported")
-            return ''
-        else:
-            self._print_info('Generating subtitle')
-            try:
+            if website is None:
+                self._print_info(page_full_url + " not supported")
+                return ''
+            else:
+                self._print_info('Generating subtitle')
                 text = website.ass_subtitles_text(
                     font_name=u'黑体',
                     font_size=36,
@@ -117,18 +113,14 @@ class Bili():
                     bottom_margin=0,
                     tune_seconds=0
                 )
-            except:
-                self._print_info('Subtitle generation failed: Can\'t generate subtitle file!')
-                return ''
-            try:
                 f = open(tempfile.gettempdir() + '/tmp.ass', 'w')
                 f.write(text.encode('utf8'))
                 f.close()
                 self._print_info('Subtitle generation succeeded!')
                 return 'tmp.ass'
-            except:
-                self._print_info('Subtitle generation failed: Can\'t write subtitle file!')
-                return ''
+        except Exception as e:
+            self._print_info("Exception raised when generating subtitle: %s" % e)
+            return ''
 
     def _need_rebuild(self, file_path):
         return time.localtime(os.stat(file_path).st_ctime).tm_mday != time.localtime().tm_mday
