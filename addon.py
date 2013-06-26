@@ -2,16 +2,19 @@
 import tempfile
 from xbmcswift2 import Plugin, xbmcgui, xbmc
 from resources.lib.bilibili import Bili
+from resources.lib.config import TEMP_DIR
 from resources.lib.subtitle import subtitle_offset
 
 plugin = Plugin()
 bili = Bili()
 
 def get_tmp_dir():
+    if len(TEMP_DIR) != 0:
+        return TEMP_DIR
     try:
         return tempfile.gettempdir()
     except:
-        return "."
+        return TEMP_DIR
 
 def _print_info(info):
     print '[BiliAddon]: ' + info

@@ -72,3 +72,6 @@ INDEX_URLS = [
         'url': 'sitemap/sitemap-15.html'
     }
 ]
+
+# 临时文件目录
+TEMP_DIR = ''

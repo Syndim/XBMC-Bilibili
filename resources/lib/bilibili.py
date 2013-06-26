@@ -40,10 +40,12 @@ class Bili():
             pass
 
     def _get_tmp_dir(self):
+        if len(TEMP_DIR) != 0:
+            return TEMP_DIR
         try:
             return tempfile.gettempdir()
         except:
-            return "."
+            return TEMP_DIR
 
     def _print_info(self, info):
         print '[Bilibili]: ' + info
@@ -131,34 +133,44 @@ class Bili():
     def _need_rebuild(self, file_path):
         return time.localtime(os.stat(file_path).st_ctime).tm_mday != time.localtime().tm_mday
 
+    def _get_index_items_from_web(self, url):
+        page_content = utils.get_page_content(url)
+        results_dict = dict()
+        results_month_dict = dict()
+        parts = page_content.split('<h3>')
+        for part in parts:
+            results = self.ITEMS.findall(part)
+            key = part[0]
+            results_dict[key] = []
+            for r in results:
+                results_dict[key].append((r[1], r[2], r[0]))
+                if r[0] in results_month_dict.keys():
+                    results_month_dict[r[0]].append((r[1], r[2]))
+                else:
+                    results_month_dict[r[0]] = [(r[1], r[2])]
+        return results_dict, results_month_dict
+
     # 获取索引项目，并缓存
     def _get_index_items(self, url):
         pickle_file_by_word = self._get_tmp_dir() + '/' + url.split('/')[-1].strip() + '_word_tmp.pickle'
         pickle_file_by_month = self._get_tmp_dir() + '/' + url.split('/')[-1].strip() + '_month_tmp.pickle'
-        if os.path.exists(pickle_file_by_word) and os.path.exists(pickle_file_by_month) and not self._need_rebuild(pickle_file_by_word) and not self._need_rebuild(pickle_file_by_month):
-            self._print_info('Index files already exists!')
-            return pickle.load(open(pickle_file_by_word, 'rb')), pickle.load(open(pickle_file_by_month, 'rb'))
-        else:
-            page_content = utils.get_page_content(url)
-            results_dict = dict()
-            results_month_dict = dict()
-            parts = page_content.split('<h3>')
-            for part in parts:
-                results = self.ITEMS.findall(part)
-                key = part[0]
-                results_dict[key] = []
-                for r in results:
-                    results_dict[key].append((r[1], r[2], r[0]))
-                    if r[0] in results_month_dict.keys():
-                        results_month_dict[r[0]].append((r[1], r[2]))
-                    else:
-                        results_month_dict[r[0]] = [(r[1], r[2])]
-            word_file = open(pickle_file_by_word, 'wb')
-            month_file = open(pickle_file_by_month, 'wb')
-            pickle.dump(results_dict, word_file)
-            pickle.dump(results_month_dict, month_file)
-            self._print_info('Index files fetched succeeded!')
-            return results_dict, results_month_dict
+        try:
+            if  os.path.exists(pickle_file_by_word) and os.path.exists(pickle_file_by_month) and not self._need_rebuild(pickle_file_by_word) and not self._need_rebuild(pickle_file_by_month):
+                self._print_info('Index files already exists!')
+                return pickle.load(open(pickle_file_by_word, 'rb')), pickle.load(open(pickle_file_by_month, 'rb'))
+            else:
+                results_dict, results_month_dict = self._get_index_items_from_web(url)
+                try:
+                    word_file = open(pickle_file_by_word, 'wb')
+                    month_file = open(pickle_file_by_month, 'wb')
+                    pickle.dump(results_dict, word_file)
+                    pickle.dump(results_month_dict, month_file)
+                    self._print_info('Index files fetched succeeded!')
+                except:
+                    self._print_info('Index files generate failed!')
+                return results_dict, results_month_dict
+        except:
+            return self._get_index_items_from_web(url)
 
     # 获取RSS项目，返回合法的菜单列表
     def get_rss_items(self, category):
