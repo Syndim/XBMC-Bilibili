@@ -1,13 +1,13 @@
 #coding: utf8
 
 # B站根地址
-BASE_URL = r'http://www.bilibili.tv/'
+BASE_URL = r'http://www.bilibili.com/'
 
 # B站接口地址（用于获取视频地址）
-INTERFACE_URL = r'http://interface.bilibili.tv/playurl?cid={0}'
+INTERFACE_URL = r'http://interface.bilibili.com/playurl?cid={0}'
 
 # B站评论页面地址
-COMMENT_URL = r'http://comment.bilibili.tv/{0}.xml'
+COMMENT_URL = r'http://comment.bilibili.com/{0}.xml'
 
 # 根菜单
 ROOT_PATH = [ 'RSS', 'Index' ]
