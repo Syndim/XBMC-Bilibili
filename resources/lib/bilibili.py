@@ -98,7 +98,7 @@ class Bili():
             else:
                 return (result, '')
         else:
-            _print_info('Interface url not found!')
+            self._print_info('Interface url not found!')
         return ([], '')
 
     # 调用niconvert生成弹幕的ass文件
